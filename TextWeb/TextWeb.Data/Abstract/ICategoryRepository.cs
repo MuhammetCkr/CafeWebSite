@@ -7,8 +7,7 @@ using TextWeb.Entity;
 
 namespace TextWeb.Data.Abstract
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface ICategoryRepository : IRepository<Category>
     {
-        Task<List<Product>> ProductsByCategory(int categoryId);
     }
 }

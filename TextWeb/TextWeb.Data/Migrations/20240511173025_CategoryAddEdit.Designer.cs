@@ -11,8 +11,8 @@ using TextWeb.Data;
 namespace TextWeb.Data.Migrations
 {
     [DbContext(typeof(TextWebDbContext))]
-    [Migration("20240509191625_Deneme4")]
-    partial class Deneme4
+    [Migration("20240511173025_CategoryAddEdit")]
+    partial class CategoryAddEdit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -149,6 +149,28 @@ namespace TextWeb.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TextWeb.Entity.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("TextWeb.Entity.Page", b =>
                 {
                     b.Property<int>("Id")
@@ -177,6 +199,9 @@ namespace TextWeb.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
@@ -189,15 +214,12 @@ namespace TextWeb.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("PageId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PageId");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
                 });
@@ -323,6 +345,15 @@ namespace TextWeb.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TextWeb.Entity.Category", b =>
+                {
+                    b.HasOne("TextWeb.Entity.User", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TextWeb.Entity.Page", b =>
                 {
                     b.HasOne("TextWeb.Entity.User", "User")
@@ -334,22 +365,24 @@ namespace TextWeb.Data.Migrations
 
             modelBuilder.Entity("TextWeb.Entity.Product", b =>
                 {
-                    b.HasOne("TextWeb.Entity.Page", "Page")
+                    b.HasOne("TextWeb.Entity.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("PageId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Page");
+                    b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("TextWeb.Entity.Page", b =>
+            modelBuilder.Entity("TextWeb.Entity.Category", b =>
                 {
                     b.Navigation("Products");
                 });
 
             modelBuilder.Entity("TextWeb.Entity.User", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("Pages");
                 });
 #pragma warning restore 612, 618

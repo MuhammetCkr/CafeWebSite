@@ -16,5 +16,11 @@ namespace TextWeb.Data.Concrete
         {
             get { return _dbContext as TextWebDbContext; }
         }
+
+        public async Task<List<Product>> ProductsByCategory(int categoryId)
+        {
+            var response = await context.Products.Where(x => x.CategoryId == categoryId).ToListAsync();
+            return response;
+        }
     }
 }

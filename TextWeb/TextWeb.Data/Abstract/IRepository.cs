@@ -10,9 +10,10 @@ namespace TextWeb.Data.Abstract
     public interface IRepository<TEntity>
     {
         Task<TEntity> GetByIdAsync(int id);
-        TEntity CreateAsync(TEntity entity);
+        Task<TEntity> CreateAsync(TEntity entity);
         Task<TEntity> UpdateAsync(TEntity entity);
         Task<TEntity> DeleteAsync(TEntity entity);
+        Task<List<TEntity>> GetAllAsync();
         Task<ICollection<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> expression);
     }
 }

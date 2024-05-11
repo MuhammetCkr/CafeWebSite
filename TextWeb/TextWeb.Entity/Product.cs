@@ -14,7 +14,7 @@ namespace TextWeb.Entity
         public decimal Price { get; set; }
         public string Image { get; set; }
         public bool IsActive { get; set; }
-        public int PageId { get; set; }
-        public Page Page { get; set; }
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }

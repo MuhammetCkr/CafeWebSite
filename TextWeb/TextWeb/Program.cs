@@ -16,6 +16,8 @@ builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<Text
 
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
 builder.Services.AddScoped<IPageRepository,PageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 builder.Services.AddCors(options =>
 {

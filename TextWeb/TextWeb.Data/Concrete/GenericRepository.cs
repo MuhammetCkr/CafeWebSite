@@ -17,12 +17,12 @@ namespace TextWeb.Data.Concrete
             _dbContext = dbContext;
         }
 
-        public TEntity CreateAsync(TEntity entity)
+        public async Task<TEntity> CreateAsync(TEntity entity)
         {
              _dbContext.Add(entity);
             try
             {
-                var result =  _dbContext.SaveChanges();
+                var result = await  _dbContext.SaveChangesAsync();
                 return result > 0 ? entity : null;
             }
             catch (Exception e)
@@ -38,6 +38,12 @@ namespace TextWeb.Data.Concrete
             return result > 0 ? entity : null;
         }
 
+        public async Task<List<TEntity>> GetAllAsync()
+        {
+           return await _dbContext.Set<TEntity>().ToListAsync();
+
+        }
+
         public async Task<TEntity> GetByIdAsync(int id)
         {
             try
@@ -51,9 +57,12 @@ namespace TextWeb.Data.Concrete
             }
         }
 
-        public Task<ICollection<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task<ICollection<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await _dbContext
+                .Set<TEntity>()
+                .Where(expression)
+                .ToListAsync();
         }
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
