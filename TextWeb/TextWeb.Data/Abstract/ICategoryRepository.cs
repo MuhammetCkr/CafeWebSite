@@ -9,5 +9,6 @@ namespace TextWeb.Data.Abstract
 {
     public interface ICategoryRepository : IRepository<Category>
     {
+        Task<List<Category>> GetAllCategoryWithProductsAsync();
     }
 }

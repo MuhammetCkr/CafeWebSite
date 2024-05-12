@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TextWeb.Data.Abstract;
 using TextWeb.Entity;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TextWeb.Controllers
 {
@@ -101,6 +103,15 @@ namespace TextWeb.Controllers
             return response;
         }
 
+        [HttpDelete]
+        [Route("CategoryDelete/{id}")]
+        public async Task<Category> CategoryDelete(int id)
+        {
+            var category = await _categoryRepository.GetByIdAsync(id);
+            var response = await _categoryRepository.DeleteAsync(category);
+            return response;
+        }
+
         [HttpPost]
         [Route("ProductCreate")]
         public async Task<Product> ProductCreate([FromBody] Product Product)
@@ -127,18 +138,46 @@ namespace TextWeb.Controllers
 
         [HttpPost]
         [Route("ProductEdit")]
-        public async Task<Product> ProducteEdit([FromBody] Product Product)
+        public async Task<Product> ProductEdit([FromBody] Product Product)
         {
             var response = await _productRepository.UpdateAsync(Product);
             return response;
         }
 
+        [HttpDelete]
+        [Route("ProductDelete/{id}")]
+        public async Task<Product> ProductDelete(int id)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            var response = await _productRepository.DeleteAsync(product);
+            return response;
+        }
+
         [HttpGet]
         [Route("ProductsByCategory/{id}")]
-        public async Task<List<Product>> ProductsByCategory (int id)
+        public async Task<List<Product>> ProductsByCategory(int id)
         {
             var response = await _productRepository.ProductsByCategory(id);
             return response;
+        }
+
+        [HttpGet]
+        [Route("AllProduct")]
+        public async Task<List<Product>> AllProduct()
+        {
+            var response = await _productRepository.GetAllAsync();
+            return response;
+        }
+
+
+        // Bu metoda tekrar bakılacak geri dönüş değeri axios karşılamıyor
+        [HttpGet]
+        [Route("GetAllCategoryWithProducts")]
+        public async Task<string> GetAllCategoryWithProductsAsync()
+        {
+            var response = await _categoryRepository.GetAllCategoryWithProductsAsync();
+            var responseSerialize = JsonSerializer.Serialize(response);
+            return responseSerialize;
         }
 
     }
