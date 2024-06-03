@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TextWeb.Data.Abstract;
 using TextWeb.Entity;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using TextWeb.Model;
 
 namespace TextWeb.Controllers
 {
@@ -15,12 +15,14 @@ namespace TextWeb.Controllers
         private readonly IPageRepository _pageRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ISettingsRepository _settingsRepository;
 
-        public AdminController(IPageRepository pageRepository, ICategoryRepository categoryRepository, IProductRepository productRepository)
+        public AdminController(IPageRepository pageRepository, ICategoryRepository categoryRepository, IProductRepository productRepository, ISettingsRepository settingsRepository)
         {
             _pageRepository = pageRepository;
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
+            _settingsRepository = settingsRepository;
         }
 
         [HttpGet]
@@ -114,10 +116,39 @@ namespace TextWeb.Controllers
 
         [HttpPost]
         [Route("ProductCreate")]
-        public async Task<Product> ProductCreate([FromBody] Product Product)
+        public async Task<IActionResult> ProductCreate([FromForm] IFormFile imageFile, [FromForm] string productData)
         {
-            var response = await _productRepository.CreateAsync(Product);
-            return response;
+            var product = JsonConvert.DeserializeObject<Product>(productData);
+
+            if (product == null)
+            {
+                return BadRequest("Invalid product data.");
+            }
+
+            if (imageFile != null)
+            {
+                var extension = Path.GetExtension(imageFile.FileName);
+                var randomName = Guid.NewGuid().ToString() + extension;
+
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "vue-project/src/img");
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var path = Path.Combine(folderPath, randomName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                product.Image = randomName;
+            }
+
+            var response = await _productRepository.CreateAsync(product);
+            return Ok(response);
         }
 
         [HttpGet]
@@ -138,10 +169,42 @@ namespace TextWeb.Controllers
 
         [HttpPost]
         [Route("ProductEdit")]
-        public async Task<Product> ProductEdit([FromBody] Product Product)
+        public async Task<IActionResult> ProductEdit([FromForm] IFormFile imageFile, [FromForm] string productData)
         {
-            var response = await _productRepository.UpdateAsync(Product);
-            return response;
+            var product = JsonConvert.DeserializeObject<Product>(productData);
+
+            if (product == null)
+            {
+                return BadRequest("Invalid product data.");
+            }
+
+            if (imageFile != null)
+            {
+                var extension = Path.GetExtension(imageFile.FileName);
+                var randomName = Guid.NewGuid().ToString() + extension;
+
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "vue-project/src/img");
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var path = Path.Combine(folderPath, randomName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                product.Image = randomName;
+            }
+            else
+            {
+                product.Image = "";
+            }
+            var response = await _productRepository.UpdateAsync(product);
+            return Ok(response);
         }
 
         [HttpDelete]
@@ -169,15 +232,45 @@ namespace TextWeb.Controllers
             return response;
         }
 
-
-        // Bu metoda tekrar bakılacak geri dönüş değeri axios karşılamıyor
         [HttpGet]
-        [Route("GetAllCategoryWithProducts")]
-        public async Task<string> GetAllCategoryWithProductsAsync()
+        [Route("GetSettings/{id}")]
+        public async Task<Settings> GetSettings(int id)
         {
-            var response = await _categoryRepository.GetAllCategoryWithProductsAsync();
-            var responseSerialize = JsonSerializer.Serialize(response);
-            return responseSerialize;
+            var response = await _settingsRepository.GetByIdAsync(id);
+            return response;
+        }
+
+        [HttpPost]
+        [Route("SaveSettings")]
+        public async Task<Settings> SaveSettings([FromForm] IFormFile imageFile, [FromForm] string settingsModel)
+        {
+            var settings = JsonConvert.DeserializeObject<Settings>(settingsModel);
+
+            if (imageFile != null)
+            {
+                var extension = Path.GetExtension(imageFile.FileName);
+                var randomName = Guid.NewGuid().ToString() + extension;
+
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "vue-project/src/img");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var path = Path.Combine(folderPath, randomName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                settings.BannerImage = randomName;
+
+            }
+
+            var response = await _settingsRepository.UpdateAsync(settings);
+            return response;
+
         }
 
     }

@@ -11,13 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<TextWebDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("MySqlConnection")));
+//builder.Services.AddDbContext<TextWebDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("MySqlConnection")));
+//builder.Services.AddDbContext<TextWebDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MsSqlServerConnection")));
+builder.Services.AddDbContext<TextWebDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MsSqlServerConnectionLocale")));
 builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<TextWebDbContext>().AddDefaultTokenProviders();
+
 
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
 builder.Services.AddScoped<IPageRepository,PageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
 
 builder.Services.AddCors(options =>
 {
@@ -52,7 +56,8 @@ app.UseSpa(spa =>
     else
         spa.Options.SourcePath = "dist";
 
-    spa.UseVueCli(npmScript: "serve");
+    if (app.Environment.IsDevelopment())
+        spa.UseVueCli(npmScript: "serve");
 });
 
 app.Run();
